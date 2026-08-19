@@ -435,6 +435,7 @@
     document.getElementById('toolbar').style.display = 'flex';
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('btnToggleAll').textContent = 'Expandir tudo';
+    document.getElementById('dropzone').classList.add('compact');
     render();
   }
 
