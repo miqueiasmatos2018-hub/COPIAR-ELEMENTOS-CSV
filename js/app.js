@@ -2,7 +2,7 @@
 
   "use strict";
 
-  var state = { rows: [], headerMap: {}, dimCols: [], contextCols: [], allExpanded: true, copiedKeys: {} };
+  var state = { rows: [], headerMap: {}, dimCols: [], contextCols: [], allExpanded: false, copiedKeys: {} };
 
   // ---------- CSV parsing ----------
   function stripBOM(text){ return text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text; }
@@ -430,11 +430,11 @@
     state.rows = parsed.rows;
     state.dimCols = parsed.dimCols;
     state.contextCols = parsed.contextCols;
-    state.allExpanded = true;
+    state.allExpanded = false;
     document.getElementById('metaFile').textContent = filename || 'dados carregados';
     document.getElementById('toolbar').style.display = 'flex';
     document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('btnToggleAll').textContent = 'Recolher tudo';
+    document.getElementById('btnToggleAll').textContent = 'Expandir tudo';
     render();
   }
 
