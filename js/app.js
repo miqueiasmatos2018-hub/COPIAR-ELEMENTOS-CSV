@@ -368,7 +368,7 @@
         var subEl = el('div', {class:'subsection'});
         var count = cat.groups.reduce(function(n,g){ return n + g.rows.length; }, 0);
         subEl.appendChild(el('div', {class:'subsection-head'}, [
-          el('span', {text: cat.label}),
+          el('span', {class:'sub-label', text: cat.label}),
           el('span', {class:'sub-count', text: '· ' + count + (count===1?' elemento':' elementos')})
         ]));
         var listEl = el('div', {class:'group-list'});
