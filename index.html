@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leitor de Elementos SGE</title>
+<meta name="description" content="Leitor de CSV exportado do SGE/DNIT — agrupa elementos por tramo, categoria e tipo, para copiar dimensões direto para a planilha.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="titleblock">
+    <div class="tb-corner-tr"></div><div class="tb-corner-br"></div>
+    <div>
+      <p class="eyebrow">Sistema · Leitura de arquivo CSV</p>
+      <h1>Leitor de Elementos SGE</h1>
+      <p class="subtitle">Organiza por tramo e categoria estrutural, agrupando dentro de cada uma os elementos por código de tipo (ID) e nome — pronto para copiar as colunas de cada grupo direto para a planilha.</p>
+    </div>
+    <div class="tb-meta">
+      REF <b id="metaFile">—</b><br>
+      ELEM <b id="metaElems">0</b> · TIPOS <b id="metaTypes">0</b>
+    </div>
+  </div>
+
+  <div class="dropzone" id="dropzone">
+    <div class="dz-left">
+      <div class="dz-icon">＋</div>
+      <div class="dz-text">
+        <b>Arraste um arquivo .csv aqui ou clique para escolher</b>
+        <span>Exportação padrão SGE/DNIT (separador ";", decimal ",")</span>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn" id="btnSample" type="button">Carregar exemplo</button>
+      <button class="btn primary" id="btnChoose" type="button">Escolher arquivo</button>
+    </div>
+    <input type="file" id="fileInput" accept=".csv,text/csv">
+  </div>
+
+  <div class="toolbar" id="toolbar" style="display:none;">
+    <div class="stats">
+      <div class="stat"><b id="statElems">0</b><span>elementos</span></div>
+      <div class="stat"><b id="statTypes">0</b><span>tipos (nome+id)</span></div>
+      <div class="stat"><b id="statGroupsShown">0</b><span>grupos exibidos</span></div>
+    </div>
+    <div class="controls">
+      <input class="search" id="search" type="text" placeholder="Filtrar por nome do tipo…">
+      <button class="btn" id="btnToggleAll" type="button">Recolher tudo</button>
+    </div>
+  </div>
+
+  <div id="groups"></div>
+  <div class="empty-state" id="emptyState">
+    <div class="big">Nenhum arquivo carregado ainda</div>
+    envie um .csv exportado do SGE para começar
+  </div>
+
+</div>
+
+<footer>leitor local — nenhum dado sai do navegador</footer>
+
+<script src="js/sample-data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
