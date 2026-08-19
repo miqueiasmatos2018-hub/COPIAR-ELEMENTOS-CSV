@@ -144,18 +144,25 @@
 
   var COL_LABELS = { codigo:'CÓDIGO', __tramo:'TRAMO', __categoria:'CATEGORIA', transicao:'TRANSIÇÃO' };
 
-  // ordem fixa de categorias dentro de cada tramo, conforme solicitado
-  var CATEGORY_ORDER = [
+  // ordem fixa de categorias dentro de cada tramo (padrão)
+  var CATEGORY_ORDER_DEFAULT = [
     /TRANSI/i,
     /SUPERESTRUTURA/i,
     /APOIO/i
   ];
 
-  function categoryRank(label){
-    for (var i=0;i<CATEGORY_ORDER.length;i++){
-      if (CATEGORY_ORDER[i].test(label)) return i;
+  // ordem para o último tramo cadastrado (sem elementos de apoio)
+  var CATEGORY_ORDER_LAST_TRAMO = [
+    /SUPERESTRUTURA/i,
+    /TRANSI/i,
+    /APOIO/i
+  ];
+
+  function categoryRank(label, orderArr){
+    for (var i=0;i<orderArr.length;i++){
+      if (orderArr[i].test(label)) return i;
     }
-    return CATEGORY_ORDER.length; // categorias não previstas (ex: complementares) vão depois, na ordem em que aparecem
+    return orderArr.length; // categorias não previstas (ex: complementares) vão depois, na ordem em que aparecem
   }
 
   function tramoRank(label){
@@ -200,12 +207,19 @@
     var sections = tramoOrder.map(function(label){ return tramoMap[label]; });
     sections.sort(function(a,b){ return tramoRank(a.label) - tramoRank(b.label); });
 
-    return sections.map(function(sec){
+    // o último "TRAMO N" da sequência (ignora COMPLEMENTAR e rótulos fora do padrão) usa ordem diferente
+    var lastTramoIdx = -1;
+    for (var i=sections.length-1; i>=0; i--){
+      if (/^TRAMO\b/i.test(sections[i].label)){ lastTramoIdx = i; break; }
+    }
+
+    return sections.map(function(sec, secIdx){
+      var orderArr = (secIdx === lastTramoIdx) ? CATEGORY_ORDER_LAST_TRAMO : CATEGORY_ORDER_DEFAULT;
       var cats = sec.catOrder.map(function(catLabel, idx){
         return { label: catLabel, rows: sec.catMap[catLabel], firstSeen: idx };
       });
       cats.sort(function(a,b){
-        var ra = categoryRank(a.label), rb = categoryRank(b.label);
+        var ra = categoryRank(a.label, orderArr), rb = categoryRank(b.label, orderArr);
         if (ra !== rb) return ra - rb;
         return a.firstSeen - b.firstSeen;
       });
