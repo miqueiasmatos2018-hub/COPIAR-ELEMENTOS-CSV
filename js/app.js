@@ -197,15 +197,21 @@
     var tramoMap = {}, tramoOrder = [];
     state.rows.forEach(function(r){
       var tramo = r.__tramo || '(sem tramo)';
-      var cat = r.__categoria || '(sem categoria)';
+      var catLabel = r.__categoria || '(sem categoria)';
+      // elementos de transição são separados por qual TRANSIÇÃO pertencem (relevante
+      // em obras de 1 tramo, onde existe transição no início E no fim da obra)
+      var transTag = /TRANSI/i.test(catLabel) ? (r.transicao || '') : '';
+      var catKey = catLabel + '␟' + transTag;
       if (!tramoMap[tramo]){ tramoMap[tramo] = { label:tramo, catMap:{}, catOrder:[] }; tramoOrder.push(tramo); }
       var t = tramoMap[tramo];
-      if (!t.catMap[cat]){ t.catMap[cat] = []; t.catOrder.push(cat); }
-      t.catMap[cat].push(r);
+      if (!t.catMap[catKey]){ t.catMap[catKey] = { label:catLabel, tag:transTag, rows:[] }; t.catOrder.push(catKey); }
+      t.catMap[catKey].rows.push(r);
     });
 
     var sections = tramoOrder.map(function(label){ return tramoMap[label]; });
     sections.sort(function(a,b){ return tramoRank(a.label) - tramoRank(b.label); });
+
+    var tramoSections = sections.filter(function(s){ return /^TRAMO\b/i.test(s.label); });
 
     // o último "TRAMO N" da sequência (ignora COMPLEMENTAR e rótulos fora do padrão) usa ordem diferente
     var lastTramoIdx = -1;
@@ -214,19 +220,30 @@
     }
 
     return sections.map(function(sec, secIdx){
+      var isTramoSection = /^TRAMO\b/i.test(sec.label);
+      // obras de 1 tramo não têm apoio e têm transição no início e no fim: mantemos a
+      // ordem natural do arquivo (transição inicial, superestrutura, transição final)
+      // em vez de forçar um reagrupamento por categoria.
+      var singleTramoWork = isTramoSection && tramoSections.length === 1;
       var orderArr = (secIdx === lastTramoIdx) ? CATEGORY_ORDER_LAST_TRAMO : CATEGORY_ORDER_DEFAULT;
-      var cats = sec.catOrder.map(function(catLabel, idx){
-        return { label: catLabel, rows: sec.catMap[catLabel], firstSeen: idx };
+
+      var cats = sec.catOrder.map(function(catKey, idx){
+        var entry = sec.catMap[catKey];
+        return { label: entry.label, tag: entry.tag, rows: entry.rows, firstSeen: idx };
       });
-      cats.sort(function(a,b){
-        var ra = categoryRank(a.label, orderArr), rb = categoryRank(b.label, orderArr);
-        if (ra !== rb) return ra - rb;
-        return a.firstSeen - b.firstSeen;
-      });
+
+      if (!singleTramoWork){
+        cats.sort(function(a,b){
+          var ra = categoryRank(a.label, orderArr), rb = categoryRank(b.label, orderArr);
+          if (ra !== rb) return ra - rb;
+          return a.firstSeen - b.firstSeen;
+        });
+      }
+
       return {
         label: sec.label,
         elemCount: cats.reduce(function(n,c){ return n + c.rows.length; }, 0),
-        categories: cats.map(function(c){ return { label:c.label, groups: groupRows(c.rows) }; })
+        categories: cats.map(function(c){ return { label:c.label, tag:c.tag, groups: groupRows(c.rows) }; })
       };
     });
   }
@@ -340,7 +357,7 @@
         var groups = cat.groups.filter(function(g){
           return !query || g.nome.toLowerCase().indexOf(query) !== -1;
         });
-        if (groups.length) catsToRender.push({ label: cat.label, groups: groups });
+        if (groups.length) catsToRender.push({ label: cat.label, tag: cat.tag, groups: groups });
       });
       if (catsToRender.length) sectionsToRender.push({ label: sec.label, elemCount: sec.elemCount, categories: catsToRender });
     });
@@ -367,13 +384,14 @@
       sec.categories.forEach(function(cat){
         var subEl = el('div', {class:'subsection'});
         var count = cat.groups.reduce(function(n,g){ return n + g.rows.length; }, 0);
+        var labelText = cat.label + (cat.tag ? ' · ' + cat.tag : '');
         subEl.appendChild(el('div', {class:'subsection-head'}, [
-          el('span', {class:'sub-label', text: cat.label}),
+          el('span', {class:'sub-label', text: labelText}),
           el('span', {class:'sub-count', text: '· ' + count + (count===1?' elemento':' elementos')})
         ]));
         var listEl = el('div', {class:'group-list'});
         cat.groups.forEach(function(g){
-          var groupKey = sec.label + '␟' + cat.label + '␟' + g.id + '␟' + g.nome;
+          var groupKey = sec.label + '␟' + cat.label + '␟' + (cat.tag||'') + '␟' + g.id + '␟' + g.nome;
           listEl.appendChild(renderGroupCard(g, columns, groupKey));
           shownGroups++;
         });
