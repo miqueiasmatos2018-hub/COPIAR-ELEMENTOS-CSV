@@ -193,6 +193,42 @@
   }
 
   // ---------- hierarquia: tramo -> categoria -> grupos ----------
+  function transTagNum(tag){
+    var m = tag && tag.match(/(\d+)/);
+    return m ? parseInt(m[1], 10) : 999;
+  }
+
+  // ordena as categorias de uma obra de 1 tramo: complementares, transição (nº menor),
+  // superestrutura, transição (nº maior) — não depende da ordem em que aparecem no arquivo
+  function orderSingleTramoCategories(cats){
+    var isComp = function(c){ return /COMPLEMENTAR/i.test(c.label); };
+    var isTrans = function(c){ return /TRANSI/i.test(c.label); };
+    var isSuper = function(c){ return /SUPERESTRUTURA/i.test(c.label); };
+    var isApoio = function(c){ return /APOIO/i.test(c.label); };
+
+    var comp = cats.filter(isComp);
+    var trans = cats.filter(isTrans).sort(function(a,b){
+      var na = transTagNum(a.tag), nb = transTagNum(b.tag);
+      if (na !== nb) return na - nb;
+      return a.firstSeen - b.firstSeen;
+    });
+    var supr = cats.filter(isSuper);
+    var apoio = cats.filter(isApoio);
+    var matched = comp.concat(trans, supr, apoio);
+    var others = cats.filter(function(c){ return matched.indexOf(c) === -1; });
+
+    var ordered = comp.slice();
+    if (trans.length >= 2){
+      ordered.push(trans[0]);
+      ordered = ordered.concat(supr);
+      ordered = ordered.concat(trans.slice(1));
+    } else {
+      ordered = ordered.concat(trans).concat(supr);
+    }
+    ordered = ordered.concat(apoio).concat(others);
+    return ordered;
+  }
+
   function buildHierarchy(){
     var tramoMap = {}, tramoOrder = [];
     state.rows.forEach(function(r){
@@ -221,9 +257,8 @@
 
     return sections.map(function(sec, secIdx){
       var isTramoSection = /^TRAMO\b/i.test(sec.label);
-      // obras de 1 tramo não têm apoio e têm transição no início e no fim: mantemos a
-      // ordem natural do arquivo (transição inicial, superestrutura, transição final)
-      // em vez de forçar um reagrupamento por categoria.
+      // obras de 1 tramo não têm apoio e têm transição no início e no fim: ordem fixa
+      // complementares > transição inicial > superestrutura > transição final.
       var singleTramoWork = isTramoSection && tramoSections.length === 1;
       var orderArr = (secIdx === lastTramoIdx) ? CATEGORY_ORDER_LAST_TRAMO : CATEGORY_ORDER_DEFAULT;
 
@@ -232,7 +267,9 @@
         return { label: entry.label, tag: entry.tag, rows: entry.rows, firstSeen: idx };
       });
 
-      if (!singleTramoWork){
+      if (singleTramoWork){
+        cats = orderSingleTramoCategories(cats);
+      } else {
         cats.sort(function(a,b){
           var ra = categoryRank(a.label, orderArr), rb = categoryRank(b.label, orderArr);
           if (ra !== rb) return ra - rb;
