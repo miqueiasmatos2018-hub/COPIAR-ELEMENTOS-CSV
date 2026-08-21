@@ -117,14 +117,18 @@
 
   // onRemove: function|null — mostra botao "Remover"
   // isCopied / onToggleCopied: controlam o estado persistente de "copiado"
-  function renderItemCard(text, onRemove, isCopied, onToggleCopied){
+  // displayNumber: numero exibido antes do nome (não entra na cópia)
+  function renderItemCard(text, onRemove, isCopied, onToggleCopied, displayNumber){
     var groupEl = el('div', {class:'group name-item' + (isCopied ? ' group-copied' : '')});
     groupEl.appendChild(el('div', {class:'g-corner-tr'}));
     groupEl.appendChild(el('div', {class:'g-corner-br'}));
 
-    var title = el('div', {class:'g-title'}, [
-      el('span', {class:'g-name', text: text})
-    ]);
+    var titleChildren = [];
+    if (displayNumber !== undefined && displayNumber !== null){
+      titleChildren.push(el('span', {class:'g-id', text: String(displayNumber)}));
+    }
+    titleChildren.push(el('span', {class:'g-name', text: text}));
+    var title = el('div', {class:'g-title'}, titleChildren);
 
     var actions = el('div', {class:'g-actions'});
     var badge = el('span', {class:'copied-badge', text:'✓ copiado'});
@@ -188,7 +192,7 @@
     var copiedCount = items.filter(function(it){ return !!dynamicCopied[it.id]; }).length;
     countEl.textContent = fotoLabel(items.length) + (copiedCount ? ' · ' + copiedCount + ' copiadas' : '');
     emptyEl.style.display = items.length ? 'none' : 'block';
-    items.forEach(function(item){
+    items.forEach(function(item, i){
       listEl.appendChild(renderItemCard(
         item.text,
         function(){
@@ -201,7 +205,8 @@
         function(val){
           if (val) dynamicCopied[item.id] = true; else delete dynamicCopied[item.id];
           render();
-        }
+        },
+        i + 12
       ));
     });
   }
