@@ -71,55 +71,72 @@
   <!-- ===================== ABA: GERADOR DE NOMES ===================== -->
   <section class="tab-panel" id="panel-names" hidden>
 
-    <div class="name-form">
-      <div class="tb-corner-tr"></div><div class="tb-corner-br"></div>
-      <p class="eyebrow">Novo identificador</p>
-      <div class="name-fields">
-        <div class="name-field">
-          <label>Prefixo</label>
-          <div class="fixed">INFERIOR, TRAMO</div>
-        </div>
-        <div class="name-field">
-          <label>Nº do tramo</label>
-          <select class="name-select" id="tramoNum"></select>
-        </div>
-        <div class="name-field">
-          <label>Elemento</label>
-          <select class="name-select" id="elemento">
-            <option value="TRANSIÇÃO">TRANSIÇÃO</option>
-            <option value="APOIO">APOIO</option>
-            <option value="LE">LE</option>
-            <option value="LD">LD</option>
-          </select>
-        </div>
-        <div class="name-field">
-          <label>Nº do elemento</label>
-          <select class="name-select" id="elementoNum"></select>
-        </div>
+    <div class="section">
+      <div class="section-head">
+        <span class="tag">BLOCO</span>
+        <h2>Fotos Superiores</h2>
+        <span class="section-count" id="staticNamesCount"></span>
       </div>
-
-      <div class="name-preview">
-        <span class="lbl">Prévia</span>
-        <span id="namePreview">INFERIOR, TRAMO 01, TRANSIÇÃO 01</span>
+      <div class="controls" style="margin-bottom:12px;">
+        <button class="btn" id="btnCopyAllStatic" type="button">Copiar tudo</button>
       </div>
-
-      <button class="btn primary" id="btnAddName" type="button" style="margin-top:16px; width:100%;">Adicionar à lista</button>
+      <div class="name-list" id="staticNamesList"></div>
     </div>
 
-    <div class="toolbar" id="namesToolbar">
-      <div class="stats">
-        <div class="stat"><b id="namesCount">0</b><span>nomes gerados</span></div>
+    <div class="section">
+      <div class="section-head">
+        <span class="tag">BLOCO</span>
+        <h2>Fotos Inferiores</h2>
+        <span class="section-count" id="namesCount"></span>
       </div>
-      <div class="controls">
-        <button class="btn" id="btnCopyAllNames" type="button">Copiar tudo</button>
-        <button class="btn" id="btnClearNames" type="button">Limpar tudo</button>
-      </div>
-    </div>
 
-    <div class="name-list" id="namesList"></div>
-    <div class="empty-state" id="namesEmptyState">
-      <div class="big">Nenhum nome gerado ainda</div>
-      preencha os campos acima e clique em "Adicionar à lista"
+      <div class="name-form">
+        <div class="tb-corner-tr"></div><div class="tb-corner-br"></div>
+        <p class="eyebrow">Novo identificador</p>
+        <div class="name-fields">
+          <div class="name-field">
+            <label>Prefixo</label>
+            <div class="fixed">INFERIOR, TRAMO</div>
+          </div>
+          <div class="name-field">
+            <label>Nº do tramo</label>
+            <select class="name-select" id="tramoNum"></select>
+          </div>
+          <div class="name-field">
+            <label>Elemento</label>
+            <select class="name-select" id="elemento">
+              <option value="TRANSIÇÃO">TRANSIÇÃO</option>
+              <option value="APOIO">APOIO</option>
+              <option value="LE">LE</option>
+              <option value="LD">LD</option>
+            </select>
+          </div>
+          <div class="name-field">
+            <label>Nº do elemento</label>
+            <select class="name-select" id="elementoNum"></select>
+          </div>
+        </div>
+
+        <div class="name-preview">
+          <span class="lbl">Prévia</span>
+          <span id="namePreview">INFERIOR, TRAMO 01, TRANSIÇÃO 01</span>
+        </div>
+
+        <button class="btn primary" id="btnAddName" type="button" style="margin-top:16px; width:100%;">Adicionar à lista</button>
+      </div>
+
+      <div class="toolbar" id="namesToolbar">
+        <div class="controls">
+          <button class="btn" id="btnCopyAllNames" type="button">Copiar tudo</button>
+          <button class="btn" id="btnClearNames" type="button">Limpar tudo</button>
+        </div>
+      </div>
+
+      <div class="name-list" id="namesList"></div>
+      <div class="empty-state" id="namesEmptyState">
+        <div class="big">Nenhum nome gerado ainda</div>
+        preencha os campos acima e clique em "Adicionar à lista"
+      </div>
     </div>
 
   </section>
