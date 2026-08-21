@@ -532,6 +532,69 @@
     }
   }
 
+  /* ---------- diagrama fotos superiores ---------- */
+  .oae-diagram-wrap{
+    margin-top:16px;
+    border:1px solid var(--line-soft);
+    background:rgba(255,255,255,0.02);
+    padding:14px;
+  }
+  .oae-diagram{
+    width:100%;
+    height:auto;
+    display:block;
+    max-width:460px;
+    margin:0 auto;
+  }
+  .diagram-rect{
+    fill:none;
+    stroke:#6f95b8;
+    stroke-width:2;
+  }
+  .diagram-arrow{
+    stroke:#b8823a;
+    stroke-width:2;
+  }
+  .diagram-arrowhead{
+    fill:#b8823a;
+  }
+  .diagram-badge{
+    cursor:pointer;
+  }
+  .diagram-badge-circle{
+    fill:#123258;
+    stroke:#e8a94a;
+    stroke-width:2;
+    transition:fill .15s, stroke .15s, stroke-width .15s;
+  }
+  .diagram-badge-text{
+    fill:#eaf2fb;
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:12px;
+    text-anchor:middle;
+    pointer-events:none;
+  }
+  .diagram-badge:hover .diagram-badge-circle{
+    stroke:#f2bd6c !important;
+    fill:rgba(232,169,74,0.12) !important;
+  }
+  .diagram-badge:focus{ outline:none; }
+  .diagram-badge:focus .diagram-badge-circle{
+    stroke:#f2bd6c !important;
+    stroke-width:3;
+  }
+  .diagram-badge.copied .diagram-badge-circle{
+    fill:rgba(92,186,123,0.2) !important;
+    stroke:#5cba7b !important;
+  }
+  .diagram-badge.copied .diagram-badge-text{
+    fill:#5cba7b !important;
+  }
+  @media (max-width:640px){
+    .oae-diagram-wrap{padding:14px 10px;}
+  }
+
   footer{
     max-width:1180px;
     margin:36px auto 0;
