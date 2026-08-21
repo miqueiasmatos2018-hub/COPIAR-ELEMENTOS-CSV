@@ -486,6 +486,52 @@
   }
   .name-item .btn.copy-dims{padding:9px 16px;}
 
+  .name-list-grid{
+    display:flex;
+    flex-direction:row;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .name-list-grid .name-item{
+    flex:0 0 calc((100% - 30px) / 4);
+    max-width:calc((100% - 30px) / 4);
+  }
+  .name-list-grid .name-item .g-head{
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+    padding:12px 14px;
+  }
+  .name-list-grid .name-item .g-title{width:100%;}
+  .name-list-grid .name-item .g-name{
+    font-size:12px;
+    line-height:1.35;
+    white-space:normal;
+  }
+  .name-list-grid .name-item .g-actions{
+    justify-content:space-between;
+    gap:6px;
+  }
+  .name-list-grid .name-item .copied-badge{display:none;}
+  .name-list-grid .name-item.group-copied .copied-badge{display:none;}
+  .name-list-grid .name-item .btn.copy-dims{
+    padding:7px 12px;
+    font-size:11px;
+    width:100%;
+  }
+  @media (max-width:900px){
+    .name-list-grid .name-item{
+      flex:0 0 calc((100% - 10px) / 2);
+      max-width:calc((100% - 10px) / 2);
+    }
+  }
+  @media (max-width:480px){
+    .name-list-grid .name-item{
+      flex:0 0 100%;
+      max-width:100%;
+    }
+  }
+
   footer{
     max-width:1180px;
     margin:36px auto 0;
