@@ -52,8 +52,9 @@
   var listEl = document.getElementById('namesList');
   var emptyEl = document.getElementById('namesEmptyState');
   var countEl = document.getElementById('namesCount');
-  var staticListEl = document.getElementById('staticNamesList');
   var staticCountEl = document.getElementById('staticNamesCount');
+  var staticDiagram = document.getElementById('staticDiagram');
+  var staticBadges = staticDiagram ? Array.prototype.slice.call(staticDiagram.querySelectorAll('.diagram-badge')) : [];
 
   if (!tramoNumSel) return; // aba nao presente nesta pagina
 
@@ -154,16 +155,33 @@
   function fotoLabel(n){ return n + (n === 1 ? ' foto' : ' fotos'); }
 
   function renderStatic(){
-    staticListEl.innerHTML = '';
     var copiedCount = Object.keys(staticCopied).length;
     staticCountEl.textContent = fotoLabel(STATIC_NAMES.length) + (copiedCount ? ' · ' + copiedCount + ' copiadas' : '');
-    STATIC_NAMES.forEach(function(text, i){
-      staticListEl.appendChild(renderItemCard(text, null, !!staticCopied[i], function(val){
-        if (val) staticCopied[i] = true; else delete staticCopied[i];
-        renderStatic();
-      }));
+    staticBadges.forEach(function(badge){
+      var idx = Number(badge.getAttribute('data-index'));
+      badge.classList.toggle('copied', !!staticCopied[idx]);
     });
   }
+
+  function handleStaticBadgeActivate(badge){
+    var idx = Number(badge.getAttribute('data-index'));
+    var text = STATIC_NAMES[idx];
+    if (text === undefined) return;
+    copyText(text).then(function(){
+      staticCopied[idx] = true;
+      renderStatic();
+    });
+  }
+
+  staticBadges.forEach(function(badge){
+    badge.addEventListener('click', function(){ handleStaticBadgeActivate(badge); });
+    badge.addEventListener('keydown', function(ev){
+      if (ev.key === 'Enter' || ev.key === ' '){
+        ev.preventDefault();
+        handleStaticBadgeActivate(badge);
+      }
+    });
+  });
 
   function render(){
     listEl.innerHTML = '';
