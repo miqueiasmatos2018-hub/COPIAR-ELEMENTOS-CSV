@@ -52,6 +52,7 @@
   var listEl = document.getElementById('namesList');
   var emptyEl = document.getElementById('namesEmptyState');
   var countEl = document.getElementById('namesCount');
+  var startNumberInput = document.getElementById('startNumber');
   var staticCountEl = document.getElementById('staticNamesCount');
   var staticDiagram = document.getElementById('staticDiagram');
   var staticBadges = staticDiagram ? Array.prototype.slice.call(staticDiagram.querySelectorAll('.diagram-badge')) : [];
@@ -91,6 +92,19 @@
     return (typeof it === 'string') ? { id: uid(), text: it } : it;
   });
   function saveItems(){ saveJSON(STORAGE_KEY, items); }
+
+  // numero inicial da numeracao das Fotos Inferiores (editavel, persiste)
+  var START_NUMBER_KEY = 'sge-nomes-numero-inicial';
+  var startNumber = loadJSON(START_NUMBER_KEY, 12);
+  if (startNumberInput){
+    startNumberInput.value = startNumber;
+    startNumberInput.addEventListener('input', function(){
+      var val = parseInt(startNumberInput.value, 10);
+      startNumber = isNaN(val) ? 1 : val;
+      saveJSON(START_NUMBER_KEY, startNumber);
+      render();
+    });
+  }
 
   // marcacoes de "copiado" — só duram enquanto a página está aberta,
   // recarregar a página reseta tudo (não persistem em localStorage)
@@ -206,7 +220,7 @@
           if (val) dynamicCopied[item.id] = true; else delete dynamicCopied[item.id];
           render();
         },
-        i + 12
+        i + startNumber
       ));
     });
   }
