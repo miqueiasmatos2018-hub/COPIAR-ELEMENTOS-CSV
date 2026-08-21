@@ -3,8 +3,6 @@
   "use strict";
 
   var STORAGE_KEY = 'sge-nomes-padronizados';
-  var STATIC_COPIED_KEY = 'sge-nomes-superiores-copiados';
-  var DYNAMIC_COPIED_KEY = 'sge-nomes-inferiores-copiados';
 
   var STATIC_NAMES = [
     'LE INICIO, DIAGONAL SUPERIOR',
@@ -93,11 +91,10 @@
   });
   function saveItems(){ saveJSON(STORAGE_KEY, items); }
 
-  // marcacoes de "copiado" (persistem ate o usuario desmarcar)
-  var staticCopied = loadJSON(STATIC_COPIED_KEY, {});   // { indice: true }
-  var dynamicCopied = loadJSON(DYNAMIC_COPIED_KEY, {}); // { id: true }
-  function saveStaticCopied(){ saveJSON(STATIC_COPIED_KEY, staticCopied); }
-  function saveDynamicCopied(){ saveJSON(DYNAMIC_COPIED_KEY, dynamicCopied); }
+  // marcacoes de "copiado" — só duram enquanto a página está aberta,
+  // recarregar a página reseta tudo (não persistem em localStorage)
+  var staticCopied = {};   // { indice: true }
+  var dynamicCopied = {}; // { id: true }
 
   // ---------- clipboard (mesmo padrao do app.js) ----------
   function copyText(text){
@@ -163,7 +160,6 @@
     STATIC_NAMES.forEach(function(text, i){
       staticListEl.appendChild(renderItemCard(text, null, !!staticCopied[i], function(val){
         if (val) staticCopied[i] = true; else delete staticCopied[i];
-        saveStaticCopied();
         renderStatic();
       }));
     });
@@ -181,13 +177,11 @@
           items = items.filter(function(it){ return it.id !== item.id; });
           delete dynamicCopied[item.id];
           saveItems();
-          saveDynamicCopied();
           render();
         },
         !!dynamicCopied[item.id],
         function(val){
           if (val) dynamicCopied[item.id] = true; else delete dynamicCopied[item.id];
-          saveDynamicCopied();
           render();
         }
       ));
@@ -217,7 +211,6 @@
       items = [];
       dynamicCopied = {};
       saveItems();
-      saveDynamicCopied();
       render();
     }
   });
@@ -226,7 +219,6 @@
   if (btnUnmarkNames){
     btnUnmarkNames.addEventListener('click', function(){
       dynamicCopied = {};
-      saveDynamicCopied();
       render();
     });
   }
@@ -245,7 +237,6 @@
   if (btnUnmarkStatic){
     btnUnmarkStatic.addEventListener('click', function(){
       staticCopied = {};
-      saveStaticCopied();
       renderStatic();
     });
   }
