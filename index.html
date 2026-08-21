@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leitor de Elementos SGE</title>
-<meta name="description" content="Leitor de CSV exportado do SGE/DNIT — agrupa elementos por tramo, categoria e tipo, para copiar dimensões direto para a planilha.">
+<title>Ferramentas SGE</title>
+<meta name="description" content="Leitor de CSV exportado do SGE/DNIT e gerador de nomes padronizados de elementos de OAE.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
@@ -15,48 +15,114 @@
   <div class="titleblock">
     <div class="tb-corner-tr"></div><div class="tb-corner-br"></div>
     <div>
-      <p class="eyebrow">Sistema · Leitura de arquivo CSV</p>
-      <h1>Leitor de Elementos SGE</h1>
-      <p class="subtitle">Organiza por tramo e categoria estrutural, agrupando dentro de cada uma os elementos por código de tipo (ID) e nome — pronto para copiar as colunas de cada grupo direto para a planilha.</p>
+      <p class="eyebrow">Sistema · Ferramentas OAE</p>
+      <h1 id="pageTitle">Leitor de Elementos SGE</h1>
+      <p class="subtitle" id="pageSubtitle">Organiza por tramo e categoria estrutural, agrupando dentro de cada uma os elementos por código de tipo (ID) e nome — pronto para copiar as colunas de cada grupo direto para a planilha.</p>
     </div>
-    <div class="tb-meta">
+    <div class="tb-meta" id="csvMeta">
       REF <b id="metaFile">—</b><br>
       ELEM <b id="metaElems">0</b> · TIPOS <b id="metaTypes">0</b>
     </div>
   </div>
 
-  <div class="dropzone" id="dropzone">
-    <div class="dz-left">
-      <div class="dz-icon">＋</div>
-      <div class="dz-text">
-        <b>Arraste um arquivo .csv aqui, em qualquer lugar desta área</b>
-        <span>Exportação padrão SGE/DNIT (separador ";", decimal ",")</span>
+  <div class="tabbar" role="tablist">
+    <button class="tab-btn active" id="tabBtnCsv" type="button" role="tab" aria-selected="true">Leitor CSV</button>
+    <button class="tab-btn" id="tabBtnNames" type="button" role="tab" aria-selected="false">Gerador de Nomes</button>
+  </div>
+
+  <!-- ===================== ABA: LEITOR CSV ===================== -->
+  <section class="tab-panel" id="panel-csv">
+
+    <div class="dropzone" id="dropzone">
+      <div class="dz-left">
+        <div class="dz-icon">＋</div>
+        <div class="dz-text">
+          <b>Arraste um arquivo .csv aqui, em qualquer lugar desta área</b>
+          <span>Exportação padrão SGE/DNIT (separador ";", decimal ",")</span>
+        </div>
+      </div>
+      <div class="dz-buttons">
+        <button class="btn" id="btnSample" type="button">Carregar exemplo</button>
+        <button class="btn primary" id="btnChoose" type="button">Escolher arquivo</button>
+      </div>
+      <input type="file" id="fileInput" accept=".csv,text/csv">
+    </div>
+
+    <div class="toolbar" id="toolbar" style="display:none;">
+      <div class="stats">
+        <div class="stat"><b id="statElems">0</b><span>elementos</span></div>
+        <div class="stat"><b id="statTypes">0</b><span>tipos (nome+id)</span></div>
+        <div class="stat"><b id="statGroupsShown">0</b><span>grupos exibidos</span></div>
+      </div>
+      <div class="controls">
+        <input class="search" id="search" type="text" placeholder="Filtrar por nome do tipo…">
+        <button class="btn" id="btnToggleAll" type="button">Expandir tudo</button>
       </div>
     </div>
-    <div class="dz-buttons">
-      <button class="btn" id="btnSample" type="button">Carregar exemplo</button>
-      <button class="btn primary" id="btnChoose" type="button">Escolher arquivo</button>
-    </div>
-    <input type="file" id="fileInput" accept=".csv,text/csv">
-  </div>
 
-  <div class="toolbar" id="toolbar" style="display:none;">
-    <div class="stats">
-      <div class="stat"><b id="statElems">0</b><span>elementos</span></div>
-      <div class="stat"><b id="statTypes">0</b><span>tipos (nome+id)</span></div>
-      <div class="stat"><b id="statGroupsShown">0</b><span>grupos exibidos</span></div>
+    <div id="groups"></div>
+    <div class="empty-state" id="emptyState">
+      <div class="big">Nenhum arquivo carregado ainda</div>
+      envie um .csv exportado do SGE para começar
     </div>
-    <div class="controls">
-      <input class="search" id="search" type="text" placeholder="Filtrar por nome do tipo…">
-      <button class="btn" id="btnToggleAll" type="button">Expandir tudo</button>
-    </div>
-  </div>
 
-  <div id="groups"></div>
-  <div class="empty-state" id="emptyState">
-    <div class="big">Nenhum arquivo carregado ainda</div>
-    envie um .csv exportado do SGE para começar
-  </div>
+  </section>
+
+  <!-- ===================== ABA: GERADOR DE NOMES ===================== -->
+  <section class="tab-panel" id="panel-names" hidden>
+
+    <div class="name-form">
+      <div class="tb-corner-tr"></div><div class="tb-corner-br"></div>
+      <p class="eyebrow">Novo identificador</p>
+      <div class="name-fields">
+        <div class="name-field">
+          <label>Prefixo</label>
+          <div class="fixed">INFERIOR, TRAMO</div>
+        </div>
+        <div class="name-field">
+          <label>Nº do tramo</label>
+          <select class="name-select" id="tramoNum"></select>
+        </div>
+        <div class="name-field">
+          <label>Elemento</label>
+          <select class="name-select" id="elemento">
+            <option value="TRANSIÇÃO">TRANSIÇÃO</option>
+            <option value="APOIO">APOIO</option>
+            <option value="LE">LE</option>
+            <option value="LD">LD</option>
+          </select>
+        </div>
+        <div class="name-field">
+          <label>Nº do elemento</label>
+          <select class="name-select" id="elementoNum"></select>
+        </div>
+      </div>
+
+      <div class="name-preview">
+        <span class="lbl">Prévia</span>
+        <span id="namePreview">INFERIOR, TRAMO 01, TRANSIÇÃO 01</span>
+      </div>
+
+      <button class="btn primary" id="btnAddName" type="button" style="margin-top:16px; width:100%;">Adicionar à lista</button>
+    </div>
+
+    <div class="toolbar" id="namesToolbar">
+      <div class="stats">
+        <div class="stat"><b id="namesCount">0</b><span>nomes gerados</span></div>
+      </div>
+      <div class="controls">
+        <button class="btn" id="btnCopyAllNames" type="button">Copiar tudo</button>
+        <button class="btn" id="btnClearNames" type="button">Limpar tudo</button>
+      </div>
+    </div>
+
+    <div class="name-list" id="namesList"></div>
+    <div class="empty-state" id="namesEmptyState">
+      <div class="big">Nenhum nome gerado ainda</div>
+      preencha os campos acima e clique em "Adicionar à lista"
+    </div>
+
+  </section>
 
 </div>
 
@@ -64,5 +130,7 @@
 
 <script src="js/sample-data.js"></script>
 <script src="js/app.js"></script>
+<script src="js/name-generator.js"></script>
+<script src="js/tabs.js"></script>
 </body>
 </html>
