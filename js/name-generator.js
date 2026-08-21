@@ -4,6 +4,20 @@
 
   var STORAGE_KEY = 'sge-nomes-padronizados';
 
+  var STATIC_NAMES = [
+    'LE INICIO, DIAGONAL SUPERIOR',
+    'LE LATERAL, SUPERIOR',
+    'LE FINAL, DIAGONAL SUPERIOR',
+    'DECRESCENTE SUPERIOR',
+    'LD FINAL, DIAGONAL SUPERIOR',
+    'LD LATERAL, SUPERIOR',
+    'LD INICIO, DIAGONAL SUPERIOR',
+    'CRESCENTE SUPERIOR',
+    'SUPERIOR ORTOGONAL',
+    'VISTA TERREA SENTIDO CRESCENTE',
+    'VISTA TERREA SENTIDO DECRESCENTE'
+  ];
+
   function el(tag, attrs, children){
     var node = document.createElement(tag);
     attrs = attrs || {};
@@ -34,6 +48,8 @@
   var listEl = document.getElementById('namesList');
   var emptyEl = document.getElementById('namesEmptyState');
   var countEl = document.getElementById('namesCount');
+  var staticListEl = document.getElementById('staticNamesList');
+  var staticCountEl = document.getElementById('staticNamesCount');
 
   if (!tramoNumSel) return; // aba nao presente nesta pagina
 
@@ -83,7 +99,7 @@
     });
   }
 
-  function renderItemCard(text, index){
+  function renderItemCard(text, onRemove){
     var groupEl = el('div', {class:'group name-item'});
     groupEl.appendChild(el('div', {class:'g-corner-tr'}));
     groupEl.appendChild(el('div', {class:'g-corner-br'}));
@@ -95,7 +111,6 @@
     var actions = el('div', {class:'g-actions'});
     var badge = el('span', {class:'copied-badge', text:'✓ copiado'});
     var copyBtn = el('button', {class:'btn copy-dims', type:'button', text:'Copiar'});
-    var removeBtn = el('button', {class:'btn', type:'button', text:'Remover'});
 
     copyBtn.addEventListener('click', function(){
       copyText(text).then(function(){
@@ -108,27 +123,42 @@
       });
     });
 
-    removeBtn.addEventListener('click', function(){
-      items.splice(index, 1);
-      saveItems(items);
-      render();
-    });
-
     actions.appendChild(badge);
     actions.appendChild(copyBtn);
-    actions.appendChild(removeBtn);
+
+    if (onRemove){
+      var removeBtn = el('button', {class:'btn', type:'button', text:'Remover'});
+      removeBtn.addEventListener('click', onRemove);
+      actions.appendChild(removeBtn);
+    }
 
     var head = el('div', {class:'g-head'}, [title, actions]);
     groupEl.appendChild(head);
     return groupEl;
   }
 
+  function fotoLabel(n){ return n + (n === 1 ? ' foto' : ' fotos'); }
+
+  function renderStatic(){
+    staticListEl.innerHTML = '';
+    staticCountEl.textContent = fotoLabel(STATIC_NAMES.length);
+    STATIC_NAMES.forEach(function(text){
+      staticListEl.appendChild(renderItemCard(text, null));
+    });
+  }
+
   function render(){
     listEl.innerHTML = '';
-    countEl.textContent = items.length;
+    countEl.textContent = fotoLabel(items.length);
     emptyEl.style.display = items.length ? 'none' : 'block';
     items.forEach(function(text, i){
-      listEl.appendChild(renderItemCard(text, i));
+      listEl.appendChild(renderItemCard(text, (function(idx){
+        return function(){
+          items.splice(idx, 1);
+          saveItems(items);
+          render();
+        };
+      })(i)));
     });
   }
 
@@ -158,7 +188,18 @@
     }
   });
 
+  document.getElementById('btnCopyAllStatic').addEventListener('click', function(ev){
+    var btn = ev.currentTarget;
+    copyText(STATIC_NAMES.join('\n')).then(function(){
+      var original = btn.textContent;
+      btn.classList.add('copied');
+      btn.textContent = 'Copiado!';
+      setTimeout(function(){ btn.classList.remove('copied'); btn.textContent = original; }, 1200);
+    });
+  });
+
   updatePreview();
+  renderStatic();
   render();
 
 })();
