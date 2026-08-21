@@ -2,7 +2,7 @@
 
   "use strict";
 
-  var state = { rows: [], headerMap: {}, dimCols: [], contextCols: [], allExpanded: false, copiedKeys: {} };
+  var state = { rows: [], headerMap: {}, dimCols: [], contextCols: [], allExpanded: true, copiedKeys: {} };
 
   // ---------- CSV parsing ----------
   function stripBOM(text){ return text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text; }
@@ -193,61 +193,19 @@
   }
 
   // ---------- hierarquia: tramo -> categoria -> grupos ----------
-  function transTagNum(tag){
-    var m = tag && tag.match(/(\d+)/);
-    return m ? parseInt(m[1], 10) : 999;
-  }
-
-  // ordena as categorias de uma obra de 1 tramo: complementares, transição (nº menor),
-  // superestrutura, transição (nº maior) — não depende da ordem em que aparecem no arquivo
-  function orderSingleTramoCategories(cats){
-    var isComp = function(c){ return /COMPLEMENTAR/i.test(c.label); };
-    var isTrans = function(c){ return /TRANSI/i.test(c.label); };
-    var isSuper = function(c){ return /SUPERESTRUTURA/i.test(c.label); };
-    var isApoio = function(c){ return /APOIO/i.test(c.label); };
-
-    var comp = cats.filter(isComp);
-    var trans = cats.filter(isTrans).sort(function(a,b){
-      var na = transTagNum(a.tag), nb = transTagNum(b.tag);
-      if (na !== nb) return na - nb;
-      return a.firstSeen - b.firstSeen;
-    });
-    var supr = cats.filter(isSuper);
-    var apoio = cats.filter(isApoio);
-    var matched = comp.concat(trans, supr, apoio);
-    var others = cats.filter(function(c){ return matched.indexOf(c) === -1; });
-
-    var ordered = comp.slice();
-    if (trans.length >= 2){
-      ordered.push(trans[0]);
-      ordered = ordered.concat(supr);
-      ordered = ordered.concat(trans.slice(1));
-    } else {
-      ordered = ordered.concat(trans).concat(supr);
-    }
-    ordered = ordered.concat(apoio).concat(others);
-    return ordered;
-  }
-
   function buildHierarchy(){
     var tramoMap = {}, tramoOrder = [];
     state.rows.forEach(function(r){
       var tramo = r.__tramo || '(sem tramo)';
-      var catLabel = r.__categoria || '(sem categoria)';
-      // elementos de transição são separados por qual TRANSIÇÃO pertencem (relevante
-      // em obras de 1 tramo, onde existe transição no início E no fim da obra)
-      var transTag = /TRANSI/i.test(catLabel) ? (r.transicao || '') : '';
-      var catKey = catLabel + '␟' + transTag;
+      var cat = r.__categoria || '(sem categoria)';
       if (!tramoMap[tramo]){ tramoMap[tramo] = { label:tramo, catMap:{}, catOrder:[] }; tramoOrder.push(tramo); }
       var t = tramoMap[tramo];
-      if (!t.catMap[catKey]){ t.catMap[catKey] = { label:catLabel, tag:transTag, rows:[] }; t.catOrder.push(catKey); }
-      t.catMap[catKey].rows.push(r);
+      if (!t.catMap[cat]){ t.catMap[cat] = []; t.catOrder.push(cat); }
+      t.catMap[cat].push(r);
     });
 
     var sections = tramoOrder.map(function(label){ return tramoMap[label]; });
     sections.sort(function(a,b){ return tramoRank(a.label) - tramoRank(b.label); });
-
-    var tramoSections = sections.filter(function(s){ return /^TRAMO\b/i.test(s.label); });
 
     // o último "TRAMO N" da sequência (ignora COMPLEMENTAR e rótulos fora do padrão) usa ordem diferente
     var lastTramoIdx = -1;
@@ -256,31 +214,19 @@
     }
 
     return sections.map(function(sec, secIdx){
-      var isTramoSection = /^TRAMO\b/i.test(sec.label);
-      // obras de 1 tramo não têm apoio e têm transição no início e no fim: ordem fixa
-      // complementares > transição inicial > superestrutura > transição final.
-      var singleTramoWork = isTramoSection && tramoSections.length === 1;
       var orderArr = (secIdx === lastTramoIdx) ? CATEGORY_ORDER_LAST_TRAMO : CATEGORY_ORDER_DEFAULT;
-
-      var cats = sec.catOrder.map(function(catKey, idx){
-        var entry = sec.catMap[catKey];
-        return { label: entry.label, tag: entry.tag, rows: entry.rows, firstSeen: idx };
+      var cats = sec.catOrder.map(function(catLabel, idx){
+        return { label: catLabel, rows: sec.catMap[catLabel], firstSeen: idx };
       });
-
-      if (singleTramoWork){
-        cats = orderSingleTramoCategories(cats);
-      } else {
-        cats.sort(function(a,b){
-          var ra = categoryRank(a.label, orderArr), rb = categoryRank(b.label, orderArr);
-          if (ra !== rb) return ra - rb;
-          return a.firstSeen - b.firstSeen;
-        });
-      }
-
+      cats.sort(function(a,b){
+        var ra = categoryRank(a.label, orderArr), rb = categoryRank(b.label, orderArr);
+        if (ra !== rb) return ra - rb;
+        return a.firstSeen - b.firstSeen;
+      });
       return {
         label: sec.label,
         elemCount: cats.reduce(function(n,c){ return n + c.rows.length; }, 0),
-        categories: cats.map(function(c){ return { label:c.label, tag:c.tag, groups: groupRows(c.rows) }; })
+        categories: cats.map(function(c){ return { label:c.label, groups: groupRows(c.rows) }; })
       };
     });
   }
@@ -394,7 +340,7 @@
         var groups = cat.groups.filter(function(g){
           return !query || g.nome.toLowerCase().indexOf(query) !== -1;
         });
-        if (groups.length) catsToRender.push({ label: cat.label, tag: cat.tag, groups: groups });
+        if (groups.length) catsToRender.push({ label: cat.label, groups: groups });
       });
       if (catsToRender.length) sectionsToRender.push({ label: sec.label, elemCount: sec.elemCount, categories: catsToRender });
     });
@@ -421,14 +367,13 @@
       sec.categories.forEach(function(cat){
         var subEl = el('div', {class:'subsection'});
         var count = cat.groups.reduce(function(n,g){ return n + g.rows.length; }, 0);
-        var labelText = cat.label + (cat.tag ? ' · ' + cat.tag : '');
         subEl.appendChild(el('div', {class:'subsection-head'}, [
-          el('span', {class:'sub-label', text: labelText}),
+          el('span', {text: cat.label}),
           el('span', {class:'sub-count', text: '· ' + count + (count===1?' elemento':' elementos')})
         ]));
         var listEl = el('div', {class:'group-list'});
         cat.groups.forEach(function(g){
-          var groupKey = sec.label + '␟' + cat.label + '␟' + (cat.tag||'') + '␟' + g.id + '␟' + g.nome;
+          var groupKey = sec.label + '␟' + cat.label + '␟' + g.id + '␟' + g.nome;
           listEl.appendChild(renderGroupCard(g, columns, groupKey));
           shownGroups++;
         });
@@ -485,12 +430,11 @@
     state.rows = parsed.rows;
     state.dimCols = parsed.dimCols;
     state.contextCols = parsed.contextCols;
-    state.allExpanded = false;
+    state.allExpanded = true;
     document.getElementById('metaFile').textContent = filename || 'dados carregados';
     document.getElementById('toolbar').style.display = 'flex';
     document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('btnToggleAll').textContent = 'Expandir tudo';
-    document.getElementById('dropzone').classList.add('compact');
+    document.getElementById('btnToggleAll').textContent = 'Recolher tudo';
     render();
   }
 
