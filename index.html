@@ -80,7 +80,87 @@
         <button class="btn" id="btnCopyAllStatic" type="button">Copiar tudo</button>
         <button class="btn" id="btnUnmarkStatic" type="button">Desmarcar copiadas</button>
       </div>
-      <div class="name-list name-list-grid" id="staticNamesList"></div>
+
+      <div class="oae-diagram-wrap">
+        <svg id="staticDiagram" class="oae-diagram" viewBox="0 0 640 410" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="oaeArrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" class="diagram-arrowhead" fill="#b8823a"></path>
+            </marker>
+          </defs>
+
+          <rect class="diagram-rect" x="150" y="120" width="340" height="170" fill="none" stroke="#6f95b8" stroke-width="2"></rect>
+
+          <!-- setas -->
+          <line class="diagram-arrow" x1="117" y1="72"  x2="150" y2="118" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+          <line class="diagram-arrow" x1="320" y1="68"  x2="320" y2="118" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+          <line class="diagram-arrow" x1="523" y1="72"  x2="490" y2="118" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+          <line class="diagram-arrow" x1="543" y1="205" x2="493" y2="205" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+          <line class="diagram-arrow" x1="523" y1="338" x2="490" y2="292" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+          <line class="diagram-arrow" x1="320" y1="342" x2="320" y2="292" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+          <line class="diagram-arrow" x1="117" y1="338" x2="150" y2="292" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+          <line class="diagram-arrow" x1="97"  y1="205" x2="147" y2="205" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+          <line class="diagram-arrow" x1="238" y1="205" x2="278" y2="205" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+          <line class="diagram-arrow" x1="402" y1="205" x2="362" y2="205" stroke="#b8823a" stroke-width="2.5" marker-end="url(#oaeArrowhead)"></line>
+
+          <!-- botoes numerados -->
+          <g class="diagram-badge" data-index="0" role="button" tabindex="0" aria-label="Copiar nome 01">
+            <title>LE INICIO, DIAGONAL SUPERIOR</title>
+            <circle class="diagram-badge-circle" cx="100" cy="55" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="100" y="55" dy="0.35em" fill="#eaf2fb">01</text>
+          </g>
+          <g class="diagram-badge" data-index="1" role="button" tabindex="0" aria-label="Copiar nome 02">
+            <title>LE LATERAL, SUPERIOR</title>
+            <circle class="diagram-badge-circle" cx="320" cy="45" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="320" y="45" dy="0.35em" fill="#eaf2fb">02</text>
+          </g>
+          <g class="diagram-badge" data-index="2" role="button" tabindex="0" aria-label="Copiar nome 03">
+            <title>LE FINAL, DIAGONAL SUPERIOR</title>
+            <circle class="diagram-badge-circle" cx="540" cy="55" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="540" y="55" dy="0.35em" fill="#eaf2fb">03</text>
+          </g>
+          <g class="diagram-badge" data-index="3" role="button" tabindex="0" aria-label="Copiar nome 04">
+            <title>DECRESCENTE SUPERIOR</title>
+            <circle class="diagram-badge-circle" cx="565" cy="205" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="565" y="205" dy="0.35em" fill="#eaf2fb">04</text>
+          </g>
+          <g class="diagram-badge" data-index="4" role="button" tabindex="0" aria-label="Copiar nome 05">
+            <title>LD FINAL, DIAGONAL SUPERIOR</title>
+            <circle class="diagram-badge-circle" cx="540" cy="355" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="540" y="355" dy="0.35em" fill="#eaf2fb">05</text>
+          </g>
+          <g class="diagram-badge" data-index="5" role="button" tabindex="0" aria-label="Copiar nome 06">
+            <title>LD LATERAL, SUPERIOR</title>
+            <circle class="diagram-badge-circle" cx="320" cy="365" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="320" y="365" dy="0.35em" fill="#eaf2fb">06</text>
+          </g>
+          <g class="diagram-badge" data-index="6" role="button" tabindex="0" aria-label="Copiar nome 07">
+            <title>LD INICIO, DIAGONAL SUPERIOR</title>
+            <circle class="diagram-badge-circle" cx="100" cy="355" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="100" y="355" dy="0.35em" fill="#eaf2fb">07</text>
+          </g>
+          <g class="diagram-badge" data-index="7" role="button" tabindex="0" aria-label="Copiar nome 08">
+            <title>CRESCENTE SUPERIOR</title>
+            <circle class="diagram-badge-circle" cx="75" cy="205" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="75" y="205" dy="0.35em" fill="#eaf2fb">08</text>
+          </g>
+          <g class="diagram-badge" data-index="9" role="button" tabindex="0" aria-label="Copiar nome 10">
+            <title>VISTA TERREA SENTIDO CRESCENTE</title>
+            <circle class="diagram-badge-circle" cx="215" cy="205" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="215" y="205" dy="0.35em" fill="#eaf2fb">10</text>
+          </g>
+          <g class="diagram-badge" data-index="8" role="button" tabindex="0" aria-label="Copiar nome 09">
+            <title>SUPERIOR ORTOGONAL</title>
+            <circle class="diagram-badge-circle diagram-badge-circle-lg" cx="320" cy="205" r="29" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="320" y="205" dy="0.35em" fill="#eaf2fb">09</text>
+          </g>
+          <g class="diagram-badge" data-index="10" role="button" tabindex="0" aria-label="Copiar nome 11">
+            <title>VISTA TERREA SENTIDO DECRESCENTE</title>
+            <circle class="diagram-badge-circle" cx="425" cy="205" r="22" fill="#123258" stroke="#e8a94a" stroke-width="2.5"></circle>
+            <text class="diagram-badge-text" x="425" y="205" dy="0.35em" fill="#eaf2fb">11</text>
+          </g>
+        </svg>
+      </div>
     </div>
 
     <div class="section">
